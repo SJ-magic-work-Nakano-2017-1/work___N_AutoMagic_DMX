@@ -90,7 +90,8 @@ param
 ************************************************************/
 /********************
 ********************/
-static OSC_TARGET Osc_DJ("10.0.0.1", 12345, 12346);
+static OSC_TARGET Osc_DJ("10.0.0.2", 12345, 12346);
+// static OSC_TARGET Osc_DJ("127.0.0.1", 12345, 12346);
 
 /********************
 ********************/
@@ -159,6 +160,12 @@ ofApp::ofApp(int _BootMode)
 {
 }
 
+/******************************
+******************************/
+ofApp::~ofApp()
+{
+}
+
 //--------------------------------------------------------------
 void ofApp::setup(){
 	/********************
@@ -195,7 +202,7 @@ void ofApp::setup(){
 	b_DispGui = true;
 	
 	gui.setup();
-	gui.add(dimmer_Fixed.setup("dimmer_Fixed", 255, 0, 255));
+	gui.add(dimmer_Fixed.setup("dimmer_Fixed", 100, 0, 255));
 	gui.add(dimmer_Moving.setup("dimmer_Moving", 255, 0, 255));
 }
 
@@ -205,6 +212,8 @@ void ofApp::exit()
 {
 	Send_AllZero_to_AllOde();
 	printMessage("GoodBye");
+	
+	std::exit(1);
 }
 
 /******************************
@@ -233,13 +242,16 @@ void ofApp::update(){
 		ofxOscMessage m_receive;
 		Osc_DJ.OscReceive.getNextMessage(&m_receive);
 		
-		if(m_receive.getAddress() == "/DJ/AreYouReady"){
+		if(m_receive.getAddress() == "/AreYouReady"){
 			m_receive.getArgAsInt32(0); // “Ç‚ÝŽÌ‚Ä
 			
 			ofxOscMessage m_send;
-			m_send.setAddress("/DMXLight/Ready");
+			m_send.setAddress("/Ready");
 			m_send.addIntArg(1); // yes.
 			Osc_DJ.OscSend.sendMessage(m_send);
+			
+		}else if(m_receive.getAddress() == "/Quit"){
+			ofExit(1);
 		}
 	}
 
@@ -261,12 +273,20 @@ void ofApp::update(){
 			for(int i = 0; i < params.size() - 1; i++){ // "0" is added at last value.
 				vector<string> element = ofSplitString(params[i], ",");
 				if(element.size() == 6){
+				/*
 					LedLight[i].LedParam.R		= atof(element[0].c_str());
 					LedLight[i].LedParam.G		= atof(element[1].c_str());
 					LedLight[i].LedParam.B		= atof(element[2].c_str());
 					LedLight[i].LedParam.W		= atof(element[3].c_str());
 					LedLight[i].LedParam.Pan	= atof(element[4].c_str());
 					LedLight[i].LedParam.Tilt	= atof(element[5].c_str());
+				*/
+					LedLight[i].LedParam.R		= atoi(element[0].c_str());
+					LedLight[i].LedParam.G		= atoi(element[1].c_str());
+					LedLight[i].LedParam.B		= atoi(element[2].c_str());
+					LedLight[i].LedParam.W		= atoi(element[3].c_str());
+					LedLight[i].LedParam.Pan	= atoi(element[4].c_str());
+					LedLight[i].LedParam.Tilt	= atoi(element[5].c_str());
 				}
 			}
 		}
@@ -276,6 +296,7 @@ void ofApp::update(){
 			message = udpMessage;
 		}
 	}
+	
 }
 
 //--------------------------------------------------------------

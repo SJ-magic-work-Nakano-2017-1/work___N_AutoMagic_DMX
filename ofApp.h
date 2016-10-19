@@ -108,7 +108,7 @@ private:
 		HEIGHT = 400,
 	};
 	enum{
-		UDP_RECEIVE_PORT = 12345,
+		UDP_RECEIVE_PORT = 12347,
 		SIZE_UPD = 100000,
 	};
 	
@@ -142,6 +142,8 @@ public:
 	/****************************************
 	****************************************/
 	ofApp(int _BootMode);
+	~ofApp();
+	
 	void setup();
 	void update();
 	void draw();
