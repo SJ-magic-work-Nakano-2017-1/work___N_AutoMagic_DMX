@@ -106,6 +106,16 @@ static const int NUM_ODES = sizeof(ode) / sizeof(ode[0]);
 /********************
 ********************/
 static LED_LIGHT LedLight[] = {
+#ifdef MINIMAL_LED
+//				ODE id		AddressFrom					Hardware(Start Address) setting 
+/*	0	*/	LED_LIGHT(	0	,	0	,	LED_DEVICE_TYPE_MOVING	),	//	1
+/*	1	*/	LED_LIGHT(	0	,	13	,	LED_DEVICE_TYPE_MOVING	),	//	14
+/*	2	*/	LED_LIGHT(	0	,	26	,	LED_DEVICE_TYPE_MOVING	),	//	27
+/*	3	*/	LED_LIGHT(	0	,	39	,	LED_DEVICE_TYPE_FIXED	),	//	40
+/*	4	*/	LED_LIGHT(	0	,	45	,	LED_DEVICE_TYPE_FIXED	),	//	46
+
+#else
+
 //				ODE id		AddressFrom					Hardware(Start Address) setting 
 /*	0	*/	LED_LIGHT(	0	,	0	,	LED_DEVICE_TYPE_MOVING	),	//	1
 /*	1	*/	LED_LIGHT(	0	,	13	,	LED_DEVICE_TYPE_MOVING	),	//	14
@@ -140,6 +150,9 @@ static LED_LIGHT LedLight[] = {
 /*	30	*/	LED_LIGHT(	3	,	18	,	LED_DEVICE_TYPE_FIXED	),	//	19
 /*	31	*/	LED_LIGHT(	3	,	24	,	LED_DEVICE_TYPE_FIXED	),	//	25
 /*	32	*/	LED_LIGHT(	3	,	30	,	LED_DEVICE_TYPE_FIXED	),	//	31
+
+#endif
+
 };
 
 static const int NUM_LEDS = sizeof(LedLight) / sizeof(LedLight[0]);
