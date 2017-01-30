@@ -225,8 +225,6 @@ void ofApp::exit()
 {
 	Send_AllZero_to_AllOde();
 	printMessage("GoodBye");
-	
-	std::exit(1);
 }
 
 /******************************
@@ -264,7 +262,7 @@ void ofApp::update(){
 			Osc_DJ.OscSend.sendMessage(m_send);
 			
 		}else if(m_receive.getAddress() == "/Quit"){
-			ofExit(1);
+			std::exit(1);
 		}
 	}
 
@@ -279,7 +277,7 @@ void ofApp::update(){
 		if(b_1stMessage){
 			b_1stMessage = false;
 			printf("NumLeds = %d\n", params.size() - 1);
-			if(params.size() - 1 != NUM_LEDS) { ERROR_MSG(); ofExit(1); }
+			if(params.size() - 1 != NUM_LEDS) { ERROR_MSG(); std::exit(1); }
 		}
 		
 		if(params.size() == NUM_LEDS + 1){
