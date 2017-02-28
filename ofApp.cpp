@@ -177,6 +177,12 @@ ofApp::ofApp(int _BootMode)
 ******************************/
 ofApp::~ofApp()
 {
+	/********************
+	何故か、exit()で以下を記述すると、dmx commandが上手く送られず、照明が光ったまま停止してしまった。
+	こちらに持ってくると所望の動作となったので、デストラクタで処理する。
+	********************/
+	Send_AllZero_to_AllOde();
+	printMessage("GoodBye");
 }
 
 //--------------------------------------------------------------
@@ -223,8 +229,6 @@ void ofApp::setup(){
 ******************************/
 void ofApp::exit()
 {
-	Send_AllZero_to_AllOde();
-	printMessage("GoodBye");
 }
 
 /******************************
@@ -262,7 +266,8 @@ void ofApp::update(){
 			Osc_DJ.OscSend.sendMessage(m_send);
 			
 		}else if(m_receive.getAddress() == "/Quit"){
-			std::exit(1);
+			ofExit();
+			return;
 		}
 	}
 
