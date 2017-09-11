@@ -102,6 +102,10 @@ private:
 		
 		NUM_MODES,
 	};
+	enum STATE_TESTMODE{
+		STATE_TESTMODE__WAIT_START,
+		STATE_TESTMODE__DO_TEST,
+	};
 	
 	enum{
 		WIDTH = 300,
@@ -114,6 +118,8 @@ private:
 	
 	/****************************************
 	****************************************/
+	/********************
+	********************/
 	BOOT_MODE BootMode;
 	
 	ofxUDPManager udpConnection;
@@ -123,13 +129,25 @@ private:
 	
 	ofTrueTypeFont font;
 	
-	/****************************************
-	****************************************/
+	/********************
+	********************/
 	ofxPanel gui;
 	ofxIntSlider dimmer_Fixed;
 	ofxIntSlider dimmer_Moving;
+	ofxIntSlider dimmer_Nakano;
 	
 	bool b_DispGui;
+	
+	/********************
+	********************/
+	STATE_TESTMODE StateTestMode;
+	
+	float t_TestIntervalFrom;
+	
+	const int LedId_TestFrom;
+	const float T_MOVE_TO_LIGHT_POS;
+	const float T_TEST_INTERVAL;
+	
 	
 	/****************************************
 	****************************************/

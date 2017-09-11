@@ -1,4 +1,12 @@
 /************************************************************
+test modeにて以下の場合は、"SJ"をsearchして変更
+	t_intervalを変更
+	check color change
+	check するline(or lineの途中からでも対応可)を変更
+		どこか1箇所をtestするなら、
+			update()内の"LedTest.LedId++"
+		をコメントアウト.
+
 ************************************************************/
 #include "ofApp.h"
 
@@ -11,6 +19,9 @@ enum{
 enum LED_DEVICE_TYPE{
 	LED_DEVICE_TYPE_FIXED,
 	LED_DEVICE_TYPE_MOVING,
+	
+	LED_DEVICE_TYPE_N_WALLWASHER,
+	LED_DEVICE_TYPE_N_BALL,
 };
 
 /************************************************************
@@ -34,10 +45,10 @@ public:
 };
 
 struct LED_PARAM{
-	unsigned char R;
-	unsigned char G;
-	unsigned char B;
-	unsigned char W;
+	int R;
+	int G;
+	int B;
+	int W;
 	
 	int Pan;
 	int Tilt;
@@ -76,6 +87,8 @@ struct LED_TEST{
 	LED_TEST()
 	{
 		clear();
+		
+		LedParam.R = 255; // SJ : change color for check.
 	}
 	
 	void clear()
@@ -96,63 +109,121 @@ static OSC_TARGET Osc_DJ("127.0.0.1", 12345, 12346);
 /********************
 ********************/
 static ODE ode[] = {
-	ODE("10.7.162.176"),
-	ODE("10.7.153.16"),
-	ODE("10.7.164.56"),
-	ODE("10.7.157.106"),
+	ODE("10.7.189.7"),
+	ODE("10.7.192.86"),
+	ODE("10.7.191.15"),
 };
 static const int NUM_ODES = sizeof(ode) / sizeof(ode[0]);
 
 /********************
 ********************/
 static LED_LIGHT LedLight[] = {
-#ifdef MINIMAL_LED
-//				ODE id		AddressFrom					Hardware(Start Address) setting 
-/*	0	*/	LED_LIGHT(	0	,	0	,	LED_DEVICE_TYPE_MOVING	),	//	1
-/*	1	*/	LED_LIGHT(	0	,	13	,	LED_DEVICE_TYPE_MOVING	),	//	14
-/*	2	*/	LED_LIGHT(	0	,	26	,	LED_DEVICE_TYPE_MOVING	),	//	27
-/*	3	*/	LED_LIGHT(	0	,	39	,	LED_DEVICE_TYPE_FIXED	),	//	40
-/*	4	*/	LED_LIGHT(	0	,	45	,	LED_DEVICE_TYPE_FIXED	),	//	46
-
-#else
-
-//				ODE id		AddressFrom					Hardware(Start Address) setting 
-/*	0	*/	LED_LIGHT(	0	,	0	,	LED_DEVICE_TYPE_MOVING	),	//	1
-/*	1	*/	LED_LIGHT(	0	,	13	,	LED_DEVICE_TYPE_MOVING	),	//	14
-/*	2	*/	LED_LIGHT(	0	,	26	,	LED_DEVICE_TYPE_MOVING	),	//	27
-/*	3	*/	LED_LIGHT(	0	,	39	,	LED_DEVICE_TYPE_MOVING	),	//	40
-/*	4	*/	LED_LIGHT(	0	,	52	,	LED_DEVICE_TYPE_MOVING	),	//	53
-/*	5	*/	LED_LIGHT(	0	,	65	,	LED_DEVICE_TYPE_MOVING	),	//	66
-/*	6	*/	LED_LIGHT(	0	,	78	,	LED_DEVICE_TYPE_MOVING	),	//	79
-/*	7	*/	LED_LIGHT(	1	,	0	,	LED_DEVICE_TYPE_FIXED	),	//	1
-/*	8	*/	LED_LIGHT(	1	,	6	,	LED_DEVICE_TYPE_FIXED	),	//	7
-/*	9	*/	LED_LIGHT(	2	,	0	,	LED_DEVICE_TYPE_FIXED	),	//	1
-/*	10	*/	LED_LIGHT(	2	,	6	,	LED_DEVICE_TYPE_FIXED	),	//	7
-/*	11	*/	LED_LIGHT(	1	,	12	,	LED_DEVICE_TYPE_FIXED	),	//	13
-/*	12	*/	LED_LIGHT(	1	,	18	,	LED_DEVICE_TYPE_FIXED	),	//	19
-/*	13	*/	LED_LIGHT(	1	,	24	,	LED_DEVICE_TYPE_FIXED	),	//	25
-/*	14	*/	LED_LIGHT(	1	,	30	,	LED_DEVICE_TYPE_FIXED	),	//	31
-/*	15	*/	LED_LIGHT(	1	,	36	,	LED_DEVICE_TYPE_FIXED	),	//	37
-/*	16	*/	LED_LIGHT(	1	,	42	,	LED_DEVICE_TYPE_FIXED	),	//	43
-/*	17	*/	LED_LIGHT(	1	,	48	,	LED_DEVICE_TYPE_FIXED	),	//	49
-/*	18	*/	LED_LIGHT(	1	,	54	,	LED_DEVICE_TYPE_FIXED	),	//	55
-/*	19	*/	LED_LIGHT(	2	,	12	,	LED_DEVICE_TYPE_FIXED	),	//	13
-/*	20	*/	LED_LIGHT(	2	,	18	,	LED_DEVICE_TYPE_FIXED	),	//	19
-/*	21	*/	LED_LIGHT(	2	,	24	,	LED_DEVICE_TYPE_FIXED	),	//	25
-/*	22	*/	LED_LIGHT(	2	,	30	,	LED_DEVICE_TYPE_FIXED	),	//	31
-/*	23	*/	LED_LIGHT(	2	,	36	,	LED_DEVICE_TYPE_FIXED	),	//	37
-/*	24	*/	LED_LIGHT(	2	,	42	,	LED_DEVICE_TYPE_FIXED	),	//	43
-/*	25	*/	LED_LIGHT(	2	,	48	,	LED_DEVICE_TYPE_FIXED	),	//	49
-/*	26	*/	LED_LIGHT(	2	,	54	,	LED_DEVICE_TYPE_FIXED	),	//	55
-/*	27	*/	LED_LIGHT(	3	,	0	,	LED_DEVICE_TYPE_FIXED	),	//	1
-/*	28	*/	LED_LIGHT(	3	,	6	,	LED_DEVICE_TYPE_FIXED	),	//	7
-/*	29	*/	LED_LIGHT(	3	,	12	,	LED_DEVICE_TYPE_FIXED	),	//	13
-/*	30	*/	LED_LIGHT(	3	,	18	,	LED_DEVICE_TYPE_FIXED	),	//	19
-/*	31	*/	LED_LIGHT(	3	,	24	,	LED_DEVICE_TYPE_FIXED	),	//	25
-/*	32	*/	LED_LIGHT(	3	,	30	,	LED_DEVICE_TYPE_FIXED	),	//	31
-
-#endif
-
+//				ODE id		AddressFrom					Hardware(Start Address) setting 		
+/*	0	*/	LED_LIGHT(	0	,	0	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	1		
+/*	1	*/	LED_LIGHT(	0	,	3	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	4		
+/*	2	*/	LED_LIGHT(	0	,	6	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	7		
+/*	3	*/	LED_LIGHT(	0	,	9	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	10		
+/*	4	*/	LED_LIGHT(	0	,	12	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	13		
+/*	5	*/	LED_LIGHT(	0	,	15	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	16		
+/*	6	*/	LED_LIGHT(	0	,	18	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	19		
+/*	7	*/	LED_LIGHT(	0	,	21	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	22		
+/*	8	*/	LED_LIGHT(	0	,	24	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	25		
+/*	9	*/	LED_LIGHT(	0	,	27	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	28		
+/*	10	*/	LED_LIGHT(	0	,	30	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	31		
+/*	11	*/	LED_LIGHT(	0	,	33	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	34		
+/*	12	*/	LED_LIGHT(	0	,	36	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	37		
+/*	13	*/	LED_LIGHT(	0	,	39	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	40		
+/*	14	*/	LED_LIGHT(	0	,	42	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	43		
+/*	15	*/	LED_LIGHT(	0	,	45	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	46		
+/*	16	*/	LED_LIGHT(	0	,	48	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	49		
+/*	17	*/	LED_LIGHT(	0	,	51	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	52		
+/*	18	*/	LED_LIGHT(	0	,	54	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	55		
+/*	19	*/	LED_LIGHT(	0	,	57	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	58		
+/*	20	*/	LED_LIGHT(	0	,	60	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	61		
+/*	21	*/	LED_LIGHT(	0	,	63	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	64		
+/*	22	*/	LED_LIGHT(	0	,	66	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	67		
+/*	23	*/	LED_LIGHT(	0	,	69	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	70		
+/*	24	*/	LED_LIGHT(	0	,	72	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	73		
+/*	25	*/	LED_LIGHT(	0	,	75	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	76		
+/*	26	*/	LED_LIGHT(	0	,	78	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	79		
+/*	27	*/	LED_LIGHT(	0	,	81	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	82		
+/*	28	*/	LED_LIGHT(	0	,	84	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	85		
+/*	29	*/	LED_LIGHT(	0	,	87	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	88		
+/*	30	*/	LED_LIGHT(	0	,	90	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	91		
+/*	31	*/	LED_LIGHT(	0	,	93	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	94		
+/*	32	*/	LED_LIGHT(	0	,	96	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	97		
+/*	33	*/	LED_LIGHT(	0	,	99	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	100		
+/*	34	*/	LED_LIGHT(	0	,	102	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	103		
+/*	35	*/	LED_LIGHT(	0	,	105	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	106		
+/*	36	*/	LED_LIGHT(	0	,	108	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	109		
+/*	37	*/	LED_LIGHT(	0	,	111	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	112		
+/*	38	*/	LED_LIGHT(	0	,	114	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	115		
+/*	39	*/	LED_LIGHT(	0	,	117	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	118		
+/*	40	*/	LED_LIGHT(	0	,	120	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	121		
+/*	41	*/	LED_LIGHT(	0	,	123	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	124		
+/*	42	*/	LED_LIGHT(	0	,	126	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	127		
+/*	43	*/	LED_LIGHT(	0	,	129	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	130		
+/*	44	*/	LED_LIGHT(	1	,	0	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	1		
+/*	45	*/	LED_LIGHT(	1	,	3	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	4		
+/*	46	*/	LED_LIGHT(	1	,	6	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	7		
+/*	47	*/	LED_LIGHT(	1	,	9	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	10		
+/*	48	*/	LED_LIGHT(	1	,	12	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	13		
+/*	49	*/	LED_LIGHT(	1	,	15	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	16		
+/*	50	*/	LED_LIGHT(	1	,	18	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	19		
+/*	51	*/	LED_LIGHT(	1	,	21	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	22		
+/*	52	*/	LED_LIGHT(	1	,	24	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	25		
+/*	53	*/	LED_LIGHT(	1	,	27	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	28		
+/*	54	*/	LED_LIGHT(	1	,	30	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	31		
+/*	55	*/	LED_LIGHT(	1	,	33	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	34		
+/*	56	*/	LED_LIGHT(	1	,	36	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	37		
+/*	57	*/	LED_LIGHT(	1	,	39	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	40		
+/*	58	*/	LED_LIGHT(	1	,	42	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	43		
+/*	59	*/	LED_LIGHT(	1	,	45	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	46		
+/*	60	*/	LED_LIGHT(	1	,	48	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	49		
+/*	61	*/	LED_LIGHT(	1	,	51	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	52		
+/*	62	*/	LED_LIGHT(	1	,	54	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	55		
+/*	63	*/	LED_LIGHT(	1	,	57	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	58		
+/*	64	*/	LED_LIGHT(	1	,	60	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	61		
+/*	65	*/	LED_LIGHT(	1	,	63	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	64		
+/*	66	*/	LED_LIGHT(	1	,	66	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	67		
+/*	67	*/	LED_LIGHT(	1	,	69	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	70		
+/*	68	*/	LED_LIGHT(	1	,	72	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	73		
+/*	69	*/	LED_LIGHT(	1	,	75	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	76		
+/*	70	*/	LED_LIGHT(	1	,	78	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	79		
+/*	71	*/	LED_LIGHT(	1	,	81	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	82		
+/*	72	*/	LED_LIGHT(	1	,	84	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	85		
+/*	73	*/	LED_LIGHT(	1	,	87	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	88		
+/*	74	*/	LED_LIGHT(	1	,	90	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	91		
+/*	75	*/	LED_LIGHT(	1	,	93	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	94		
+/*	76	*/	LED_LIGHT(	1	,	96	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	97		
+/*	77	*/	LED_LIGHT(	1	,	99	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	100		
+/*	78	*/	LED_LIGHT(	1	,	102	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	103		
+/*	79	*/	LED_LIGHT(	1	,	105	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	106		
+/*	80	*/	LED_LIGHT(	1	,	108	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	109		
+/*	81	*/	LED_LIGHT(	1	,	111	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	112		
+/*	82	*/	LED_LIGHT(	1	,	114	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	115		
+/*	83	*/	LED_LIGHT(	1	,	117	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	118		
+/*	84	*/	LED_LIGHT(	1	,	120	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	121		
+/*	85	*/	LED_LIGHT(	1	,	123	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	124		
+/*	86	*/	LED_LIGHT(	1	,	126	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	127		
+/*	87	*/	LED_LIGHT(	1	,	129	,	LED_DEVICE_TYPE_N_WALLWASHER	),	//	130		Broadway
+/*	88	*/	LED_LIGHT(	2	,	0	,	LED_DEVICE_TYPE_N_BALL	),	//	1		
+/*	89	*/	LED_LIGHT(	2	,	12	,	LED_DEVICE_TYPE_N_BALL	),	//	13		
+/*	90	*/	LED_LIGHT(	2	,	24	,	LED_DEVICE_TYPE_N_BALL	),	//	25		青木
+/*	91	*/	LED_LIGHT(	2	,	36	,	LED_DEVICE_TYPE_N_BALL	),	//	37		ABC
+/*	92	*/	LED_LIGHT(	2	,	48	,	LED_DEVICE_TYPE_N_BALL	),	//	49		TWC
+/*	93	*/	LED_LIGHT(	2	,	60	,	LED_DEVICE_TYPE_N_BALL	),	//	61		町田歯科
+/*	94	*/	LED_LIGHT(	2	,	72	,	LED_DEVICE_TYPE_N_BALL	),	//	73		くつ：DAIWA
+/*	95	*/	LED_LIGHT(	2	,	84	,	LED_DEVICE_TYPE_N_BALL	),	//	85		とんこつラーメン
+/*	96	*/	LED_LIGHT(	2	,	96	,	LED_DEVICE_TYPE_N_BALL	),	//	97		STOCK
+/*	97	*/	LED_LIGHT(	2	,	108	,	LED_DEVICE_TYPE_N_BALL	),	//	109		ホームメイト
+/*	98	*/	LED_LIGHT(	2	,	120	,	LED_DEVICE_TYPE_N_BALL	),	//	121		niraku
+/*	99	*/	LED_LIGHT(	2	,	132	,	LED_DEVICE_TYPE_N_BALL	),	//	133		TIGER plaza - ピカデリーサーカス
+/*	100	*/	LED_LIGHT(	2	,	144	,	LED_DEVICE_TYPE_N_BALL	),	//	145		cyber slot
+/*	101	*/	LED_LIGHT(	2	,	156	,	LED_DEVICE_TYPE_N_BALL	),	//	157		カレーパン
+/*	102	*/	LED_LIGHT(	2	,	168	,	LED_DEVICE_TYPE_N_BALL	),	//	169		マツキヨ
+/*	103	*/	LED_LIGHT(	2	,	180	,	LED_DEVICE_TYPE_N_BALL	),	//	181		銀だこ
+																	//			JR
 };
 
 static const int NUM_LEDS = sizeof(LedLight) / sizeof(LedLight[0]);
@@ -170,6 +241,13 @@ static LED_TEST LedTest;
 ******************************/
 ofApp::ofApp(int _BootMode)
 : BootMode(BOOT_MODE(_BootMode))
+, StateTestMode(STATE_TESTMODE__WAIT_START)
+, T_MOVE_TO_LIGHT_POS(2 * 60) // SJ
+, T_TEST_INTERVAL(15)
+
+// , LedId_TestFrom(0) // SJ : change Led line to check.
+// , LedId_TestFrom(44)
+, LedId_TestFrom(88)
 {
 }
 
@@ -223,6 +301,7 @@ void ofApp::setup(){
 	gui.setup();
 	gui.add(dimmer_Fixed.setup("dimmer_Fixed", 100, 0, 255));
 	gui.add(dimmer_Moving.setup("dimmer_Moving", 255, 0, 255));
+	gui.add(dimmer_Nakano.setup("dimmer_Nakano", 255, 0, 255));
 }
 
 /******************************
@@ -248,7 +327,26 @@ void ofApp::Send_AllZero_to_AllOde()
 void ofApp::update(){
 	/********************
 	********************/
-	if(BootMode == MODE_TEST)	return;
+	float now = ofGetElapsedTimef();
+	if(BootMode == MODE_TEST){
+		if(StateTestMode == STATE_TESTMODE__WAIT_START){
+			if(T_MOVE_TO_LIGHT_POS < now){
+				StateTestMode = STATE_TESTMODE__DO_TEST;
+				t_TestIntervalFrom = now;
+				LedTest.LedId = LedId_TestFrom;
+			}
+			
+		}else{
+			if(T_TEST_INTERVAL < now - t_TestIntervalFrom){
+				t_TestIntervalFrom = now;
+				
+				LedTest.LedId++; // SJ
+				if(NUM_LEDS <= LedTest.LedId) LedTest.LedId = 0;
+			}
+		}
+		
+		return;
+	}
 	
 	
 	/********************
@@ -281,7 +379,7 @@ void ofApp::update(){
 		
 		if(b_1stMessage){
 			b_1stMessage = false;
-			printf("NumLeds = %d\n", params.size() - 1);
+			printf("NumLeds = %lu\n", params.size() - 1);
 			if(params.size() - 1 != NUM_LEDS) { ERROR_MSG(); std::exit(1); }
 		}
 		
@@ -401,9 +499,39 @@ void ofApp::draw_test()
 					ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 12 ] = 0; // dimmer curve = standard
 				}
 				break;
+				
+			case LED_DEVICE_TYPE_N_WALLWASHER:
+			{
+				if(i == LedTest.LedId){
+					ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 0 ] = LedTest.LedParam.R;
+					ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 1 ] = LedTest.LedParam.G;
+					ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 2 ] = LedTest.LedParam.B;
+				}else{
+					ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 0 ] = 0;
+					ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 1 ] = 0;
+					ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 2 ] = 0;
+				}
+			}
+				break;
+				
+			case LED_DEVICE_TYPE_N_BALL:
+			{
+				if(i == LedTest.LedId){
+					for(int j = 0; j < 4; j++){ // each ball has 4 Led modules
+						ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 3 * j + 0 ] = LedTest.LedParam.R; // 3 means RGB
+						ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 3 * j + 1 ] = LedTest.LedParam.G;
+						ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 3 * j + 2 ] = LedTest.LedParam.B;
+					}
+				}else{
+					for(int j = 0; j < 4; j++){ // each ball has 4 Led modules
+						ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 3 * j + 0 ] = 0;
+						ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 3 * j + 1 ] = 0;
+						ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 3 * j + 2 ] = 0;
+					}
+				}
+			}
+				break;
 		}
-		
-		
 	}
 	
 	for(int i = 0; i < NUM_ODES; i++){
@@ -448,6 +576,63 @@ void ofApp::draw_demo()
 				ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 12 ] = 0; // dimmer curve = standard
 				
 				break;
+				
+			case LED_DEVICE_TYPE_N_WALLWASHER:
+			{
+				/********************
+				********************/
+				int R = LedLight[i].LedParam.R + LedLight[i].LedParam.W;
+				R = int(R * ((double)dimmer_Nakano / 255));
+				if(255 < R) R = 255;
+				if(R < 0) R = 0;
+				
+				int G = LedLight[i].LedParam.G + LedLight[i].LedParam.W;
+				G = int(G * ((double)dimmer_Nakano / 255));
+				if(255 < G) G = 255;
+				if(G < 0) G = 0;
+				
+				int B = LedLight[i].LedParam.B + LedLight[i].LedParam.W;
+				B = int(B * ((double)dimmer_Nakano / 255));
+				if(255 < B) B = 255;
+				if(B < 0) B = 0;
+				
+				/********************
+				********************/
+				ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 0 ] = (unsigned char)R;
+				ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 1 ] = (unsigned char)G;
+				ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 2 ] = (unsigned char)B;
+			}
+				break;
+				
+			case LED_DEVICE_TYPE_N_BALL:
+			{
+				/********************
+				********************/
+				int R = LedLight[i].LedParam.R + LedLight[i].LedParam.W;
+				R = int(R * ((double)dimmer_Nakano / 255));
+				if(255 < R) R = 255;
+				if(R < 0) R = 0;
+				
+				int G = LedLight[i].LedParam.G + LedLight[i].LedParam.W;
+				G = int(G * ((double)dimmer_Nakano / 255));
+				if(255 < G) G = 255;
+				if(G < 0) G = 0;
+				
+				int B = LedLight[i].LedParam.B + LedLight[i].LedParam.W;
+				B = int(B * ((double)dimmer_Nakano / 255));
+				if(255 < B) B = 255;
+				if(B < 0) B = 0;
+				
+				/********************
+				********************/
+				for(int j = 0; j < 4; j++){ // each ball has 4 Led modules
+					ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 3 * j + 0 ] = (unsigned char)R; // 3 means RGB.
+					ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 3 * j + 1 ] = (unsigned char)G;
+					ode[ LedLight[i].ODE_id ].universe[ LedLight[i].AddressFrom + 3 * j + 2 ] = (unsigned char)B;
+				}
+			}
+				break;
+
 		}
 	}
 	
